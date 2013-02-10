@@ -55,7 +55,7 @@ public class ShowLineStatusRangeDiffAction extends BaseLineStatusRangeAction {
       @NotNull
       public DiffContent[] getContents() {
         return new DiffContent[]{createDiffContent(myLineStatusTracker.getUpToDateDocument(),
-                                                   myLineStatusTracker.getUpToDateRangeWithEndSymbol(myRange), null),
+                                                   myLineStatusTracker.getUpToDateRange(myRange), null),
           createDiffContent(myLineStatusTracker.getDocument(), myLineStatusTracker.getCurrentTextRange(myRange),
                             myLineStatusTracker.getVirtualFile())};
       }

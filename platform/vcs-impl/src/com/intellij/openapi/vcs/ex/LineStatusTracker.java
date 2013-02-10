@@ -577,7 +577,7 @@ public class LineStatusTracker {
 
       if (range.getType() == Range.INSERTED) {
         myDocument
-          .replaceString(currentTextRange.getStartOffset(), Math.min(currentTextRange.getEndOffset() + 1, myDocument.getTextLength()), "");
+          .replaceString(currentTextRange.getStartOffset(), Math.min(currentTextRange.getEndOffset(), myDocument.getTextLength()), "");
       }
       else if (range.getType() == Range.DELETED) {
         String upToDateContent = getUpToDateContent(range);
@@ -586,7 +586,7 @@ public class LineStatusTracker {
       else {
 
         String upToDateContent = getUpToDateContent(range);
-        myDocument.replaceString(currentTextRange.getStartOffset(), Math.min(currentTextRange.getEndOffset() + 1, myDocument.getTextLength()),
+        myDocument.replaceString(currentTextRange.getStartOffset(), Math.min(currentTextRange.getEndOffset(), myDocument.getTextLength()),
                                  upToDateContent);
       }
     }
@@ -596,7 +596,7 @@ public class LineStatusTracker {
     synchronized (myLock) {
       TextRange textRange = getUpToDateRange(range);
       final int startOffset = textRange.getStartOffset();
-      final int endOffset = Math.min(textRange.getEndOffset() + 1, myUpToDateDocument.getTextLength());
+      final int endOffset = Math.min(textRange.getEndOffset(), myUpToDateDocument.getTextLength());
       return myUpToDateDocument.getCharsSequence().subSequence(startOffset, endOffset).toString();
     }
   }
@@ -606,20 +606,14 @@ public class LineStatusTracker {
   }
 
   TextRange getCurrentTextRange(Range range) {
-    return getRange(range.getType(), range.getOffset1(), range.getOffset2(), Range.DELETED, myDocument, false);
+    return getRange(range.getType(), range.getOffset1(), range.getOffset2(), Range.DELETED, myDocument);
   }
 
   TextRange getUpToDateRange(Range range) {
-    return getRange(range.getType(), range.getUOffset1(), range.getUOffset2(), Range.INSERTED, myUpToDateDocument, false);
+    return getRange(range.getType(), range.getUOffset1(), range.getUOffset2(), Range.INSERTED, myUpToDateDocument);
   }
 
-  // a hack
-  TextRange getUpToDateRangeWithEndSymbol(Range range) {
-    return getRange(range.getType(), range.getUOffset1(), range.getUOffset2(), Range.INSERTED, myUpToDateDocument, true);
-  }
-
-  private static TextRange getRange(byte rangeType, int offset1, int offset2, byte emptyRangeCondition, Document document,
-                                    final boolean keepEnd) {
+  private static TextRange getRange(byte rangeType, int offset1, int offset2, byte emptyRangeCondition, Document document) {
     if (rangeType == emptyRangeCondition) {
       int lineStartOffset;
       if (offset1 == 0) {
@@ -637,9 +631,6 @@ public class LineStatusTracker {
       int endOffset = document.getLineEndOffset(offset2 - 1);
       if (startOffset > 0) {
         -- startOffset;
-        if (! keepEnd) {
-          -- endOffset;
-        }
       }
       return new TextRange(startOffset, endOffset);
     }
